@@ -1,6 +1,6 @@
 package com.ramtinmoradiii.onlineshopjava.exception.handler;
 
-import com.ramtinmoradiii.onlineshopjava.dto.global.ApiResponse;
+import com.ramtinmoradiii.onlineshopjava.dto.common.ApiResponse;
 import com.ramtinmoradiii.onlineshopjava.exception.AlreadyExistsException;
 import com.ramtinmoradiii.onlineshopjava.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
