@@ -61,8 +61,8 @@ public class AuthServiceImpl implements AuthService {
                 .enable(true)
                 .build();
 
-        Role customerRole = roleRepository.findByName("ROLE_CUSTOMER")
-                .orElseThrow(() -> new RuntimeException("خطای سیستمی: نقش کاربر (ROLE_CUSTOMER) یافت نشد."));
+        Role customerRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("خطای سیستمی: نقش کاربر (ROLE_USER) یافت نشد."));
 
         Set<Role> roles = new HashSet<>();
         roles.add(customerRole);
@@ -87,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
                 .refreshToken(refreshToken.getToken())
                 .username(savedUser.getUsername())
                 .userId(savedUser.getId())
-                .roles(Set.of("ROLE_CUSTOMER"))
+                .roles(Set.of("ROLE_USER"))
                 .build();
     }
 
