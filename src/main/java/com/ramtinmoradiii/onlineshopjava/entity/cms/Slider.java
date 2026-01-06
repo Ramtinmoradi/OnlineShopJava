@@ -22,7 +22,7 @@ public class Slider {
     private String link;
 
     private boolean enable = true;
-    private Integer orderItem;
+    private Integer itemOrder;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", nullable = false)
