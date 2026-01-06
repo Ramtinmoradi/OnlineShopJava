@@ -15,6 +15,7 @@ import com.ramtinmoradiii.onlineshopjava.security.JwtUtils;
 import com.ramtinmoradiii.onlineshopjava.service.auth.AuthService;
 import com.ramtinmoradiii.onlineshopjava.service.auth.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,11 +37,78 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final ModelMapper modelMapper;
 
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        validateNewUser(request);
 
+        User user = modelMapper.map(request, User.class);
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEnable(true);
+
+        Role customerRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("خطای سیستمی: نقش کاربر (ROLE_USER) یافت نشد."));
+        user.setRoles(new HashSet<>(Set.of(customerRole)));
+
+        Customer customer = modelMapper.map(request, Customer.class);
+
+        user.setCustomer(customer);
+        customer.setUser(user);
+
+        User savedUser = userRepository.save(user);
+
+        String jwtToken = jwtUtils.generateToken(savedUser.getUsername());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser.getId());
+
+        return buildAuthResponse(savedUser, jwtToken, refreshToken.getToken());
+    }
+
+    @Override
+    public AuthResponse login(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
+
+        User user = userRepository
+                .findByUsername(request.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("کاربر یافت نشد."));
+
+        String jwtToken = jwtUtils.generateToken(user.getUsername());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+        return buildAuthResponse(user, jwtToken, refreshToken.getToken());
+    }
+
+    @Override
+    public AuthResponse refreshToken(TokenRefreshRequest request) {
+        return refreshTokenService
+                .findByToken(request.getRefreshToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String newAccessToken = jwtUtils.generateToken(user.getUsername());
+                    return buildAuthResponse(user, newAccessToken, request.getRefreshToken());
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+    }
+
+    private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken) {
+        return AuthResponse.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .username(user.getUsername())
+                .userId(user.getId())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
+                .build();
+    }
+
+    private void validateNewUser(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AlreadyExistsException("این نام کاربری قبلاً گرفته شده است.");
         }
@@ -52,89 +120,5 @@ public class AuthServiceImpl implements AuthService {
                 throw new AlreadyExistsException("این ایمیل قبلاً استفاده شده است.");
             }
         }
-
-        User user = User.builder()
-                .username(request.getUsername())
-                .mobile(request.getMobile())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .enable(true)
-                .build();
-
-        Role customerRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("خطای سیستمی: نقش کاربر (ROLE_USER) یافت نشد."));
-
-        Set<Role> roles = new HashSet<>();
-        roles.add(customerRole);
-        user.setRoles(roles);
-
-        Customer customer = Customer.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .build();
-
-        user.setCustomer(customer);
-        customer.setUser(user);
-
-        User savedUser = userRepository.save(user);
-
-        String jwtToken = jwtUtils.generateToken(savedUser.getUsername());
-
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser.getId());
-
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .refreshToken(refreshToken.getToken())
-                .username(savedUser.getUsername())
-                .userId(savedUser.getId())
-                .roles(Set.of("ROLE_USER"))
-                .build();
     }
-
-    @Override
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("کاربر یافت نشد."));
-
-        String jwtToken = jwtUtils.generateToken(user.getUsername());
-
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
-
-        Set<String> roleNames = user.getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet());
-
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .refreshToken(refreshToken.getToken())
-                .username(user.getUsername())
-                .userId(user.getId())
-                .roles(roleNames)
-                .build();
-    }
-
-    @Override
-    public AuthResponse refreshToken(TokenRefreshRequest request) {
-        return refreshTokenService.findByToken(request.getRefreshToken())
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String newAccessToken = jwtUtils.generateToken(user.getUsername());
-
-                    return AuthResponse.builder()
-                            .token(newAccessToken)
-                            .refreshToken(request.getRefreshToken())
-                            .username(user.getUsername())
-                            .userId(user.getId())
-                            .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
-                            .build();
-                })
-                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
-    }
-
-
 }
