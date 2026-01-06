@@ -3,6 +3,7 @@ package com.ramtinmoradiii.onlineshopjava.exception.handler;
 import com.ramtinmoradiii.onlineshopjava.dto.common.ApiResponse;
 import com.ramtinmoradiii.onlineshopjava.exception.AlreadyExistsException;
 import com.ramtinmoradiii.onlineshopjava.exception.NotFoundException;
+import com.ramtinmoradiii.onlineshopjava.exception.TokenRefreshException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -56,6 +57,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiResponse<Void> handleAlreadyExists(AlreadyExistsException ex) {
+        return ApiResponse.error(ex.getMessage());
+    }
+
+    @ExceptionHandler(TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<Void> handleExpireRefreshToken(TokenRefreshException ex) {
+        log.error("Token Refresh Expire: ", ex);
         return ApiResponse.error(ex.getMessage());
     }
 }

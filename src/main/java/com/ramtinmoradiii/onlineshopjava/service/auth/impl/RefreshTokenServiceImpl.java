@@ -2,6 +2,7 @@ package com.ramtinmoradiii.onlineshopjava.service.auth.impl;
 
 import com.ramtinmoradiii.onlineshopjava.entity.user.RefreshToken;
 import com.ramtinmoradiii.onlineshopjava.entity.user.User;
+import com.ramtinmoradiii.onlineshopjava.exception.TokenRefreshException;
 import com.ramtinmoradiii.onlineshopjava.repository.user.RefreshTokenRepository;
 import com.ramtinmoradiii.onlineshopjava.repository.user.UserRepository;
 import com.ramtinmoradiii.onlineshopjava.service.auth.RefreshTokenService;
@@ -34,7 +35,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public RefreshToken createRefreshToken(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("کاربر با آیدی مورد نظر یافت نشد"));
+                .orElseThrow(() -> new UsernameNotFoundException("کاربر با آیدی مورد نظر یافت نشد."));
 
         refreshTokenRepository.deleteByUser(user);
 
@@ -51,7 +52,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(token);
-            throw new RuntimeException("Refresh token was expired. Please make a new signIn request");
+            throw new TokenRefreshException("توکن منقضی شده است لطفا دوباره وارد شوید.");
         }
         return token;
     }
@@ -60,7 +61,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public int deleteByUserId(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("کاربر با آیدی مورد نظر یافت نشد."));
         return refreshTokenRepository.deleteByUser(user);
     }
 }
