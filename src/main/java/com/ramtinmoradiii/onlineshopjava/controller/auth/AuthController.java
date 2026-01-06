@@ -4,7 +4,7 @@ import com.ramtinmoradiii.onlineshopjava.dto.auth.AuthResponse;
 import com.ramtinmoradiii.onlineshopjava.dto.auth.LoginRequest;
 import com.ramtinmoradiii.onlineshopjava.dto.auth.RegisterRequest;
 import com.ramtinmoradiii.onlineshopjava.dto.auth.TokenRefreshRequest;
-import com.ramtinmoradiii.onlineshopjava.dto.global.ApiResponse;
+import com.ramtinmoradiii.onlineshopjava.dto.common.ApiResponse;
 import com.ramtinmoradiii.onlineshopjava.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
