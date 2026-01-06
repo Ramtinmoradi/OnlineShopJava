@@ -1,5 +1,6 @@
 package com.ramtinmoradiii.onlineshopjava.entity.user;
 
+import com.ramtinmoradiii.onlineshopjava.entity.common.Attachment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,4 +27,8 @@ public class Customer {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id")
+    private Attachment profileImage;
 }
