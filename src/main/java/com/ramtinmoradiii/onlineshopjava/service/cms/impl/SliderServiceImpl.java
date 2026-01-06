@@ -9,6 +9,7 @@ import com.ramtinmoradiii.onlineshopjava.repository.cms.SliderRepository;
 import com.ramtinmoradiii.onlineshopjava.repository.common.AttachmentRepository;
 import com.ramtinmoradiii.onlineshopjava.service.cms.SliderService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,20 +23,16 @@ public class SliderServiceImpl implements SliderService {
 
     private final SliderRepository sliderRepository;
     private final AttachmentRepository fileRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     @Transactional
     public SliderResponse create(SliderRequest request) {
+        Slider slider = modelMapper.map(request, Slider.class);
+
         Attachment image = fileRepository.findById(request.getImageId())
                 .orElseThrow(() -> new NotFoundException("تصویر یافت نشد"));
-
-        Slider slider = Slider.builder()
-                .title(request.getTitle())
-                .link(request.getLink())
-                .enable(request.isEnable())
-                .itemOrder(request.getItemOrder())
-                .image(image)
-                .build();
+        slider.setImage(image);
 
         Slider savedSlider = sliderRepository.save(slider);
 
@@ -45,21 +42,16 @@ public class SliderServiceImpl implements SliderService {
     @Override
     @Transactional
     public SliderResponse update(Long id, SliderRequest request) {
-        Slider slider = sliderRepository
-                .findById(id)
+        Slider slider = sliderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("اسلایدر یافت نشد"));
 
+        modelMapper.map(request, slider);
+
         if (!slider.getImage().getId().equals(request.getImageId())) {
-            Attachment newImage = fileRepository.
-                    findById(request.getImageId())
+            Attachment newImage = fileRepository.findById(request.getImageId())
                     .orElseThrow(() -> new NotFoundException("تصویر جدید یافت نشد"));
             slider.setImage(newImage);
         }
-
-        slider.setTitle(request.getTitle());
-        slider.setLink(request.getLink());
-        slider.setEnable(request.isEnable());
-        slider.setItemOrder(request.getItemOrder());
 
         return mapToResponse(sliderRepository.save(slider));
     }
@@ -96,13 +88,12 @@ public class SliderServiceImpl implements SliderService {
     }
 
     private SliderResponse mapToResponse(Slider slider) {
-        return SliderResponse.builder()
-                .id(slider.getId())
-                .title(slider.getTitle())
-                .link(slider.getLink())
-                .enable(slider.isEnable())
-                .itemOrder(slider.getItemOrder())
-                .imageUrl(slider.getImage() != null ? slider.getImage().getPath() : null)
-                .build();
+        SliderResponse response = modelMapper.map(slider, SliderResponse.class);
+
+        if (slider.getImage() != null) {
+            response.setImageUrl(slider.getImage().getPath());
+        }
+
+        return response;
     }
 }
