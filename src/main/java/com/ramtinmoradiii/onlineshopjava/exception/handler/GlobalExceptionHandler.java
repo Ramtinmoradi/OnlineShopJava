@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT) // 409 Conflict
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ApiResponse<Void> handleAlreadyExists(AlreadyExistsException ex) {
         return ApiResponse.error(ex.getMessage());
     }
