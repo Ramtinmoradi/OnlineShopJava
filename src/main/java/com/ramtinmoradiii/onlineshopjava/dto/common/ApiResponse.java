@@ -16,6 +16,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, "عملیات با موفقیت انجام شد.", data);
     }
 
+    public static <T> ApiResponse<T> success() {
+        return new ApiResponse<>(true, "عملیات با موفیت انجام شد.", null);
+    }
+
     public static <T> ApiResponse<T> success(T data, String message) {
         return new ApiResponse<>(true, message, data);
     }
