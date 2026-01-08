@@ -23,7 +23,7 @@ public class ContentServiceImpl implements ContentService {
     public List<ContentResponse> readAll() {
         return repository.findAll()
                 .stream()
-                .map((item -> mapper.map(item, ContentResponse.class)))
+                .map(item -> mapper.map(item, ContentResponse.class))
                 .toList();
     }
 
