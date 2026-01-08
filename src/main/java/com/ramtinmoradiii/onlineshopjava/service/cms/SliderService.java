@@ -7,9 +7,14 @@ import java.util.List;
 
 public interface SliderService {
     SliderResponse create(SliderRequest request);
+
     SliderResponse update(Long id, SliderRequest request);
-    void delete(Long id);
+
+    void deleteById(Long id);
+
     SliderResponse getById(Long id);
+
     List<SliderResponse> getAllActive();
+
     List<SliderResponse> getAll();
 }

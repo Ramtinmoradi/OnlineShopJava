@@ -23,12 +23,12 @@ public class SliderServiceImpl implements SliderService {
 
     private final SliderRepository sliderRepository;
     private final AttachmentRepository fileRepository;
-    private final ModelMapper modelMapper;
+    private final ModelMapper mapper;
 
     @Override
     @Transactional
     public SliderResponse create(SliderRequest request) {
-        Slider slider = modelMapper.map(request, Slider.class);
+        Slider slider = mapper.map(request, Slider.class);
 
         Attachment image = fileRepository.findById(request.getImageId())
                 .orElseThrow(() -> new NotFoundException("تصویر یافت نشد"));
@@ -45,7 +45,7 @@ public class SliderServiceImpl implements SliderService {
         Slider slider = sliderRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("اسلایدر یافت نشد"));
 
-        modelMapper.map(request, slider);
+        mapper.map(request, slider);
 
         if (!slider.getImage().getId().equals(request.getImageId())) {
             Attachment newImage = fileRepository.findById(request.getImageId())
@@ -57,10 +57,8 @@ public class SliderServiceImpl implements SliderService {
     }
 
     @Override
-    public void delete(Long id) {
-        if (!sliderRepository.existsById(id)) {
-            throw new NotFoundException("اسلایدر یافت نشد");
-        }
+    public void deleteById(Long id) {
+        if (!sliderRepository.existsById(id)) throw new NotFoundException("اسلایدر یافت نشد");
         sliderRepository.deleteById(id);
     }
 
@@ -73,7 +71,7 @@ public class SliderServiceImpl implements SliderService {
 
     @Override
     public List<SliderResponse> getAllActive() {
-        return sliderRepository.findAllByEnableTrueOrderByOrderItemAsc()
+        return sliderRepository.findAllByEnableTrueOrderByItemOrderAsc()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -88,7 +86,7 @@ public class SliderServiceImpl implements SliderService {
     }
 
     private SliderResponse mapToResponse(Slider slider) {
-        SliderResponse response = modelMapper.map(slider, SliderResponse.class);
+        SliderResponse response = mapper.map(slider, SliderResponse.class);
 
         if (slider.getImage() != null) {
             response.setImageUrl(slider.getImage().getPath());

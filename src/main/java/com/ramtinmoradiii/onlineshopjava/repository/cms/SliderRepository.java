@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface SliderRepository extends JpaRepository<Slider, Long> {
-    List<Slider> findAllByEnableTrueOrderByOrderItemAsc();
+    List<Slider> findAllByEnableTrueOrderByItemOrderAsc();
 }
