@@ -10,6 +10,4 @@ import java.util.List;
 @Repository
 public interface BlogRepository extends JpaRepository<Blog, Long> {
     List<Blog> findAllByStatus(BlogStatus status);
-
-    List<Blog> findTopFiveByStatusOrderByPublishDateDesc(BlogStatus status);
 }
