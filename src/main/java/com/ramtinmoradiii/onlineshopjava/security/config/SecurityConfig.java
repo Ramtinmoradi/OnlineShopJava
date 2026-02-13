@@ -1,7 +1,9 @@
-package com.ramtinmoradiii.onlineshopjava.security;
+package com.ramtinmoradiii.onlineshopjava.security.config;
 
 import java.util.List;
 
+import com.ramtinmoradiii.onlineshopjava.security.jwt.JwtAuthenticationFilter;
+import com.ramtinmoradiii.onlineshopjava.util.ApiPaths;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -74,12 +76,12 @@ public class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/blog/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/slider/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/content/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/navigation/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, ApiPaths.Blog.BASE + "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, ApiPaths.Auth.BASE + "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, ApiPaths.Slider.BASE + "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, ApiPaths.Content.BASE + "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, ApiPaths.Product.BASE + "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, ApiPaths.Navigation.BASE + "/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

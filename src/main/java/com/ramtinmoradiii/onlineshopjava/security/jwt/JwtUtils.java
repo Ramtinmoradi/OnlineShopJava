@@ -1,4 +1,4 @@
-package com.ramtinmoradiii.onlineshopjava.security;
+package com.ramtinmoradiii.onlineshopjava.security.jwt;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
