@@ -3,15 +3,16 @@ package com.ramtinmoradiii.onlineshopjava.controller.cms;
 import com.ramtinmoradiii.onlineshopjava.dto.cms.ContentRequest;
 import com.ramtinmoradiii.onlineshopjava.dto.cms.ContentResponse;
 import com.ramtinmoradiii.onlineshopjava.dto.common.ApiResponse;
+import com.ramtinmoradiii.onlineshopjava.security.annotaion.IsAdmin;
 import com.ramtinmoradiii.onlineshopjava.service.cms.ContentService;
+import com.ramtinmoradiii.onlineshopjava.util.ApiPaths;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/content")
+@RequestMapping(ApiPaths.Content.BASE)
 @RequiredArgsConstructor
 public class ContentController {
     private final ContentService service;
@@ -21,30 +22,30 @@ public class ContentController {
         return ApiResponse.success(service.readAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(ApiPaths.Common.BY_ID)
     public ApiResponse<ContentResponse> getById(@PathVariable Long id) {
         return ApiResponse.success(service.readById(id));
     }
 
-    @GetMapping("/key/{name}")
+    @GetMapping(ApiPaths.Content.SEARCH_BY_NAME)
     public ApiResponse<ContentResponse> getByName(@PathVariable String name) {
         return ApiResponse.success(service.readByName(name));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @IsAdmin
     @PostMapping
     public ApiResponse<ContentResponse> create(@RequestBody ContentRequest contentRequest) {
         return ApiResponse.success(service.create(contentRequest));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}")
+    @IsAdmin
+    @PutMapping(ApiPaths.Common.BY_ID)
     public ApiResponse<ContentResponse> update(@PathVariable Long id, @RequestBody ContentRequest contentRequest) {
         return ApiResponse.success(service.update(id, contentRequest));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @IsAdmin
+    @DeleteMapping(ApiPaths.Common.BY_ID)
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.deleteById(id);
         return ApiResponse.success();
