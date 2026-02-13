@@ -4,7 +4,7 @@ import com.ramtinmoradiii.onlineshopjava.dto.cms.SliderRequest;
 import com.ramtinmoradiii.onlineshopjava.dto.cms.SliderResponse;
 import com.ramtinmoradiii.onlineshopjava.entity.cms.Slider;
 import com.ramtinmoradiii.onlineshopjava.entity.common.Attachment;
-import com.ramtinmoradiii.onlineshopjava.exception.NotFoundException;
+import com.ramtinmoradiii.onlineshopjava.exception.ResourceNotFoundException;
 import com.ramtinmoradiii.onlineshopjava.repository.cms.SliderRepository;
 import com.ramtinmoradiii.onlineshopjava.repository.common.AttachmentRepository;
 import com.ramtinmoradiii.onlineshopjava.service.cms.SliderService;
@@ -31,7 +31,7 @@ public class SliderServiceImpl implements SliderService {
         Slider slider = mapper.map(request, Slider.class);
 
         Attachment image = fileRepository.findById(request.getImageId())
-                .orElseThrow(() -> new NotFoundException("تصویر یافت نشد"));
+                .orElseThrow(() -> new ResourceNotFoundException("تصویر یافت نشد"));
         slider.setImage(image);
 
         Slider savedSlider = sliderRepository.save(slider);
@@ -43,13 +43,13 @@ public class SliderServiceImpl implements SliderService {
     @Transactional
     public SliderResponse update(Long id, SliderRequest request) {
         Slider slider = sliderRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("اسلایدر یافت نشد"));
+                .orElseThrow(() -> new ResourceNotFoundException("اسلایدر یافت نشد"));
 
         mapper.map(request, slider);
 
         if (!slider.getImage().getId().equals(request.getImageId())) {
             Attachment newImage = fileRepository.findById(request.getImageId())
-                    .orElseThrow(() -> new NotFoundException("تصویر جدید یافت نشد"));
+                    .orElseThrow(() -> new ResourceNotFoundException("تصویر جدید یافت نشد"));
             slider.setImage(newImage);
         }
 
@@ -58,7 +58,7 @@ public class SliderServiceImpl implements SliderService {
 
     @Override
     public void deleteById(Long id) {
-        if (!sliderRepository.existsById(id)) throw new NotFoundException("اسلایدر یافت نشد");
+        if (!sliderRepository.existsById(id)) throw new ResourceNotFoundException("اسلایدر یافت نشد");
         sliderRepository.deleteById(id);
     }
 
@@ -66,7 +66,7 @@ public class SliderServiceImpl implements SliderService {
     public SliderResponse getById(Long id) {
         return sliderRepository.findById(id)
                 .map(this::mapToResponse)
-                .orElseThrow(() -> new NotFoundException("اسلایدر یافت نشد"));
+                .orElseThrow(() -> new ResourceNotFoundException("اسلایدر یافت نشد"));
     }
 
     @Override

@@ -3,8 +3,7 @@ package com.ramtinmoradiii.onlineshopjava.service.cms.impl;
 import com.ramtinmoradiii.onlineshopjava.dto.cms.NavigationRequest;
 import com.ramtinmoradiii.onlineshopjava.dto.cms.NavigationResponse;
 import com.ramtinmoradiii.onlineshopjava.entity.cms.Navigation;
-import com.ramtinmoradiii.onlineshopjava.entity.common.Attachment;
-import com.ramtinmoradiii.onlineshopjava.exception.NotFoundException;
+import com.ramtinmoradiii.onlineshopjava.exception.ResourceNotFoundException;
 import com.ramtinmoradiii.onlineshopjava.repository.cms.NavigationRepository;
 import com.ramtinmoradiii.onlineshopjava.service.cms.NavigationService;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +29,14 @@ public class NavigationServiceImpl implements NavigationService {
     @Override
     public NavigationResponse update(Long id, NavigationRequest request) {
         return mapper.map(
-                repository.save(repository.findById(id).orElseThrow(() -> new NotFoundException("نویگیشن یافت نشد."))),
+                repository.save(repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("نویگیشن یافت نشد."))),
                 NavigationResponse.class
         );
     }
 
     @Override
     public void deleteById(Long id) {
-        if (!repository.existsById(id)) throw new NotFoundException("نویگیشن یافت نشد.");
+        if (!repository.existsById(id)) throw new ResourceNotFoundException("نویگیشن یافت نشد.");
         repository.deleteById(id);
     }
 
@@ -62,7 +61,7 @@ public class NavigationServiceImpl implements NavigationService {
     public NavigationResponse readById(Long id) {
         return repository.findById(id)
                 .map(item -> mapper.map(item, NavigationResponse.class))
-                .orElseThrow(() -> new NotFoundException("نویگیشن یافت نشد"));
+                .orElseThrow(() -> new ResourceNotFoundException("نویگیشن یافت نشد"));
     }
 
 

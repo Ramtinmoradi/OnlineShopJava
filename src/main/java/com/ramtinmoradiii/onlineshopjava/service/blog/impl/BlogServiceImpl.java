@@ -4,7 +4,7 @@ import com.ramtinmoradiii.onlineshopjava.dto.blog.BlogRequest;
 import com.ramtinmoradiii.onlineshopjava.dto.blog.BlogResponse;
 import com.ramtinmoradiii.onlineshopjava.entity.blog.Blog;
 import com.ramtinmoradiii.onlineshopjava.entity.blog.enums.BlogStatus;
-import com.ramtinmoradiii.onlineshopjava.exception.NotFoundException;
+import com.ramtinmoradiii.onlineshopjava.exception.ResourceNotFoundException;
 import com.ramtinmoradiii.onlineshopjava.repository.blog.BlogRepository;
 import com.ramtinmoradiii.onlineshopjava.repository.common.AttachmentRepository;
 import com.ramtinmoradiii.onlineshopjava.service.blog.BlogService;
@@ -40,7 +40,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public BlogResponse readById(Long id) {
         return mapper.map(
-                repository.findById(id).orElseThrow(() -> new NotFoundException("بلاگ مورد نظر یافت نشد.")),
+                repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("بلاگ مورد نظر یافت نشد.")),
                 BlogResponse.class
         );
     }
@@ -56,14 +56,14 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public BlogResponse update(Long id, BlogRequest request) {
         return mapper.map(
-                repository.save(repository.findById(id).orElseThrow(() -> new NotFoundException("بلاگ مورد نظر یافت نشد."))),
+                repository.save(repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("بلاگ مورد نظر یافت نشد."))),
                 BlogResponse.class
         );
     }
 
     @Override
     public void deleteById(Long id) {
-        if (!repository.existsById(id)) throw new NotFoundException("بلاگ مورد نظر یافت نشد.");
+        if (!repository.existsById(id)) throw new ResourceNotFoundException("بلاگ مورد نظر یافت نشد.");
         repository.deleteById(id);
     }
 }
